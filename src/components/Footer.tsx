@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="md:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <Wallet className="h-6 w-6 text-primary" />
-              <span className="font-bold text-xl">SpotUSDT</span>
+              <span className="font-bold text-xl">TerraBit</span>
             </div>
             <p className="text-muted-foreground mb-4">
               Buy, sell, and trade cryptocurrency securely and easily.
@@ -67,11 +67,11 @@ const Footer = () => {
         
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} SpotUSDT. All rights reserved.
+            © {new Date().getFullYear()} TerraBit. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0">
             <p className="text-sm text-muted-foreground">
-              Cryptocurrencies are subject to high market risk. SpotUSDT is not responsible for any loss.
+              Cryptocurrencies are subject to high market risk. TerraBit is not responsible for any loss.
             </p>
           </div>
         </div>
