@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Auth state changed:", event, !!session);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -70,6 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Got existing session:", !!session);
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -92,9 +94,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
       
       if (error) {
+        console.error("Error fetching profile:", error);
         throw error;
       }
       
+      console.log("Fetched profile:", data);
       if (data) {
         setProfile(data);
       }
@@ -112,6 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
       
       setIsAdmin(!!data);
+      console.log("Admin check:", !!data);
       
       if (error && error.code !== 'PGRST116') { // Not found error is expected
         console.error('Error checking admin status:', error);
@@ -125,6 +130,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      console.log("Signing in with:", email);
       
       // Clean up existing state
       cleanupAuthState();
@@ -141,7 +147,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Sign in error:", error);
+        throw error;
+      }
       
       toast({
         title: "Success!",
@@ -149,6 +158,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       
     } catch (error: any) {
+      console.error("Auth error:", error);
       toast({
         title: "Authentication error",
         description: error.message || "Failed to sign in",
@@ -163,6 +173,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      console.log("Signing up with:", email);
       
       // Clean up existing state
       cleanupAuthState();
@@ -177,16 +188,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: window.location.origin,
+        }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Sign up error:", error);
+        throw error;
+      }
+      
+      console.log("Sign up response:", data);
       
       toast({
         title: "Account created!",
-        description: "Please check your email to confirm your account.",
+        description: data.session ? "You are now signed in." : "Please check your email to confirm your account.",
       });
       
     } catch (error: any) {
+      console.error("Registration error:", error);
       toast({
         title: "Registration error",
         description: error.message || "Failed to create account",

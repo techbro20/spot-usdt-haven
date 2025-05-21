@@ -30,9 +30,21 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
   
   const { signIn, signUp } = useAuth();
   
+  const validateEmail = (email: string): boolean => {
+    // Basic email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -51,6 +63,11 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
     e.preventDefault();
     setError(null);
     
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -64,12 +81,16 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
     setIsSubmitting(true);
     
     try {
+      console.log("Attempting registration with:", { email });
       await signUp(email, password);
       onOpenChange(false);
       resetForm();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Registration error:", err);
-      // Error is handled in AuthContext with toast
+      // Set a more user-friendly error message if not already handled by AuthContext
+      if (!err.message?.includes("invalid")) {
+        setError(err.message || "Failed to create account");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -106,7 +127,7 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
                   id="email" 
                   type="email" 
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value.trim())}
                   placeholder="your@email.com" 
                   required 
                   disabled={isSubmitting}
@@ -156,7 +177,7 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
                   id="register-email" 
                   type="email" 
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value.trim())}
                   placeholder="your@email.com" 
                   required 
                   disabled={isSubmitting}

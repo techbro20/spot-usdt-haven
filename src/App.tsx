@@ -11,6 +11,7 @@ import Market from "./pages/Market";
 import PortfolioPage from "./pages/Portfolio";
 import Buy from "./pages/Buy";
 import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/market" element={<Market />} />
             <Route path="/portfolio" element={<PortfolioPage />} />
             <Route path="/buy" element={<Buy />} />
+            <Route path="/profile" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
