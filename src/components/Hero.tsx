@@ -2,9 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import LoginModal from "./LoginModal";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   const [showLogin, setShowLogin] = useState(false);
+  const [loginTab, setLoginTab] = useState("login");
+  const { user } = useAuth();
 
   return (
     <section className="py-16 md:py-24">
@@ -19,19 +23,47 @@ const Hero = () => {
               Get started with USDT trading in minutes.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                onClick={() => setShowLogin(true)}
-                size="lg"
-                className="crypto-gradient hover:opacity-90 transition-opacity"
-              >
-                Start Trading
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-              >
-                Learn More
-              </Button>
+              {user ? (
+                <>
+                  <Button 
+                    size="lg" 
+                    className="crypto-gradient hover:opacity-90 transition-opacity"
+                    asChild
+                  >
+                    <Link to="/trade">Start Trading</Link>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    asChild
+                  >
+                    <Link to="/portfolio">My Portfolio</Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    onClick={() => {
+                      setLoginTab("register");
+                      setShowLogin(true);
+                    }}
+                    size="lg"
+                    className="crypto-gradient hover:opacity-90 transition-opacity"
+                  >
+                    Create Account
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    onClick={() => {
+                      setLoginTab("login");
+                      setShowLogin(true);
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                </>
+              )}
             </div>
             <div className="mt-6 flex items-center text-sm text-muted-foreground">
               <div className="flex -space-x-2 mr-3">
@@ -72,7 +104,11 @@ const Hero = () => {
           </div>
         </div>
       </div>
-      <LoginModal open={showLogin} onOpenChange={setShowLogin} />
+      <LoginModal 
+        open={showLogin} 
+        onOpenChange={setShowLogin} 
+        defaultTab={loginTab}
+      />
     </section>
   );
 };
