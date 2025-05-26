@@ -31,29 +31,35 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
   const { signIn, signUp } = useAuth();
   
   const validateEmail = (email: string): boolean => {
-    // Basic email validation regex
+    // More permissive email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return emailRegex.test(email.trim());
   };
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email address");
+    if (!email.trim()) {
+      setError("Please enter your email address");
+      return;
+    }
+    
+    if (!password) {
+      setError("Please enter your password");
       return;
     }
     
     setIsSubmitting(true);
     
     try {
-      await signIn(email, password);
+      console.log("Attempting login with email:", email);
+      await signIn(email.trim(), password);
       onOpenChange(false);
       resetForm();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Login error:", err);
-      // Error is handled in AuthContext with toast
+      setError(err.message || "Failed to sign in. Please check your credentials.");
     } finally {
       setIsSubmitting(false);
     }
@@ -63,8 +69,25 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
     e.preventDefault();
     setError(null);
     
-    if (!validateEmail(email)) {
+    const trimmedEmail = email.trim();
+    
+    if (!trimmedEmail) {
+      setError("Please enter your email address");
+      return;
+    }
+    
+    if (!validateEmail(trimmedEmail)) {
       setError("Please enter a valid email address");
+      return;
+    }
+    
+    if (!password) {
+      setError("Please enter a password");
+      return;
+    }
+    
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
       return;
     }
     
@@ -73,24 +96,16 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
       return;
     }
     
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      return;
-    }
-    
     setIsSubmitting(true);
     
     try {
-      console.log("Attempting registration with:", { email });
-      await signUp(email, password);
+      console.log("Attempting registration with email:", trimmedEmail);
+      await signUp(trimmedEmail, password);
       onOpenChange(false);
       resetForm();
     } catch (err: any) {
       console.error("Registration error:", err);
-      // Set a more user-friendly error message if not already handled by AuthContext
-      if (!err.message?.includes("invalid")) {
-        setError(err.message || "Failed to create account");
-      }
+      setError(err.message || "Failed to create account. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -127,7 +142,7 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
                   id="email" 
                   type="email" 
                   value={email}
-                  onChange={(e) => setEmail(e.target.value.trim())}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com" 
                   required 
                   disabled={isSubmitting}
@@ -177,7 +192,7 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
                   id="register-email" 
                   type="email" 
                   value={email}
-                  onChange={(e) => setEmail(e.target.value.trim())}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com" 
                   required 
                   disabled={isSubmitting}
@@ -194,6 +209,7 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
                   required 
                   disabled={isSubmitting}
                   minLength={6}
+                  placeholder="At least 6 characters"
                 />
               </div>
               
