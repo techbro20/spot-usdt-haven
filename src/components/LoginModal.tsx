@@ -31,8 +31,8 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
   const { signIn, signUp } = useAuth();
   
   const validateEmail = (email: string): boolean => {
-    // Very permissive email validation - just check basic structure
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    // Very basic email validation - just check for @ and .
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email.trim());
   };
   
@@ -73,9 +73,13 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
     
     const trimmedEmail = email.trim().toLowerCase();
     
-    console.log("Starting registration process...");
+    console.log("=== REGISTRATION DEBUG START ===");
     console.log("Raw email input:", email);
     console.log("Trimmed/lowercased email:", trimmedEmail);
+    console.log("Email validation result:", validateEmail(trimmedEmail));
+    console.log("Password length:", password.length);
+    console.log("Supabase URL:", "https://sjijlhihwafioolrtjrs.supabase.co");
+    console.log("Current domain:", window.location.origin);
     
     if (!trimmedEmail) {
       setError("Please enter your email address");
@@ -83,8 +87,8 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
     }
     
     if (!validateEmail(trimmedEmail)) {
-      console.log("Email validation failed for:", trimmedEmail);
-      setError("Please enter a valid email address (e.g., user@gmail.com)");
+      console.log("Client-side email validation failed");
+      setError("Please enter a valid email address");
       return;
     }
     
@@ -103,31 +107,41 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
       return;
     }
     
+    console.log("All client-side validations passed, proceeding with Supabase signup...");
     setIsSubmitting(true);
     
     try {
-      console.log("All validations passed. Attempting registration with email:", trimmedEmail);
-      console.log("Email regex test result:", validateEmail(trimmedEmail));
-      
       await signUp(trimmedEmail, password);
+      console.log("Signup successful!");
       onOpenChange(false);
       resetForm();
     } catch (err: any) {
-      console.error("Registration error details:", {
-        error: err,
-        message: err.message,
-        code: err.code,
-        status: err.status
-      });
+      console.error("=== REGISTRATION ERROR DETAILS ===");
+      console.error("Full error object:", err);
+      console.error("Error message:", err.message);
+      console.error("Error code:", err.code);
+      console.error("Error status:", err.status);
+      console.error("Error name:", err.name);
       
-      // More specific error handling based on Supabase error codes
+      // Handle specific Supabase error codes
+      let errorMessage = "Failed to create account. Please try again.";
+      
       if (err.code === 'email_address_invalid') {
-        setError(`Email address "${trimmedEmail}" is not accepted. Please try a different email format or contact support.`);
+        errorMessage = `The email "${trimmedEmail}" was rejected by the server. This might be due to:
+        • Email confirmation requirements
+        • Domain restrictions
+        • Supabase project settings
+        Please check your Supabase authentication settings or try a different email.`;
       } else if (err.code === 'signup_disabled') {
-        setError("New registrations are currently disabled. Please contact support.");
-      } else {
-        setError(err.message || "Failed to create account. Please try again.");
+        errorMessage = "New registrations are currently disabled. Please contact support.";
+      } else if (err.code === 'weak_password') {
+        errorMessage = "Password is too weak. Please use a stronger password.";
+      } else if (err.message) {
+        errorMessage = err.message;
       }
+      
+      setError(errorMessage);
+      console.log("=== REGISTRATION DEBUG END ===");
     } finally {
       setIsSubmitting(false);
     }
@@ -183,7 +197,7 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
                 />
               </div>
               
-              {error && <div className="text-sm text-destructive">{error}</div>}
+              {error && <div className="text-sm text-destructive whitespace-pre-line">{error}</div>}
               
               <Button 
                 type="submit" 
@@ -247,7 +261,7 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
                 />
               </div>
               
-              {error && <div className="text-sm text-destructive">{error}</div>}
+              {error && <div className="text-sm text-destructive whitespace-pre-line">{error}</div>}
               
               <div className="text-sm text-muted-foreground pb-2">
                 By registering, you agree to our <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
