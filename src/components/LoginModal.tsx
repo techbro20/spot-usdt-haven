@@ -31,8 +31,8 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
   const { signIn, signUp } = useAuth();
   
   const validateEmail = (email: string): boolean => {
-    // More permissive email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Very permissive email validation - just check basic structure
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email.trim());
   };
   
@@ -40,7 +40,9 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
     e.preventDefault();
     setError(null);
     
-    if (!email.trim()) {
+    const trimmedEmail = email.trim().toLowerCase();
+    
+    if (!trimmedEmail) {
       setError("Please enter your email address");
       return;
     }
@@ -53,8 +55,8 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
     setIsSubmitting(true);
     
     try {
-      console.log("Attempting login with email:", email);
-      await signIn(email.trim(), password);
+      console.log("Attempting login with email:", trimmedEmail);
+      await signIn(trimmedEmail, password);
       onOpenChange(false);
       resetForm();
     } catch (err: any) {
@@ -69,7 +71,11 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
     e.preventDefault();
     setError(null);
     
-    const trimmedEmail = email.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    
+    console.log("Starting registration process...");
+    console.log("Raw email input:", email);
+    console.log("Trimmed/lowercased email:", trimmedEmail);
     
     if (!trimmedEmail) {
       setError("Please enter your email address");
@@ -77,7 +83,8 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
     }
     
     if (!validateEmail(trimmedEmail)) {
-      setError("Please enter a valid email address");
+      console.log("Email validation failed for:", trimmedEmail);
+      setError("Please enter a valid email address (e.g., user@gmail.com)");
       return;
     }
     
@@ -99,13 +106,28 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
     setIsSubmitting(true);
     
     try {
-      console.log("Attempting registration with email:", trimmedEmail);
+      console.log("All validations passed. Attempting registration with email:", trimmedEmail);
+      console.log("Email regex test result:", validateEmail(trimmedEmail));
+      
       await signUp(trimmedEmail, password);
       onOpenChange(false);
       resetForm();
     } catch (err: any) {
-      console.error("Registration error:", err);
-      setError(err.message || "Failed to create account. Please try again.");
+      console.error("Registration error details:", {
+        error: err,
+        message: err.message,
+        code: err.code,
+        status: err.status
+      });
+      
+      // More specific error handling based on Supabase error codes
+      if (err.code === 'email_address_invalid') {
+        setError(`Email address "${trimmedEmail}" is not accepted. Please try a different email format or contact support.`);
+      } else if (err.code === 'signup_disabled') {
+        setError("New registrations are currently disabled. Please contact support.");
+      } else {
+        setError(err.message || "Failed to create account. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -143,7 +165,7 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com" 
+                  placeholder="your@gmail.com" 
                   required 
                   disabled={isSubmitting}
                 />
@@ -193,7 +215,7 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com" 
+                  placeholder="user@gmail.com" 
                   required 
                   disabled={isSubmitting}
                 />
