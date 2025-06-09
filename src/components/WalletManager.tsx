@@ -139,7 +139,7 @@ const WalletManager = () => {
             <div>
               <Label>Balance</Label>
               <div className="text-2xl font-bold mt-1">
-                {parseFloat(wallet.balance || '0').toFixed(8)} USDT
+                {Number(wallet.balance || 0).toFixed(8)} USDT
               </div>
             </div>
 
@@ -323,7 +323,7 @@ const WalletManager = () => {
                   <div className="text-right">
                     <div className="font-medium">
                       {tx.transaction_type === 'withdrawal' ? '-' : '+'}
-                      {parseFloat(tx.amount).toFixed(8)} {tx.currency}
+                      {Number(tx.amount).toFixed(8)} {tx.currency}
                     </div>
                     <Badge variant="outline" className="text-xs">
                       {tx.status}
