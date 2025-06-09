@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { useWallet } from '@/hooks/useWallet';
@@ -200,9 +199,28 @@ const WalletManager = () => {
                   step="0.01"
                 />
               </div>
-              <p className="text-sm text-muted-foreground">
-                Send USDT (TRC20) to your wallet address above. This will simulate a deposit.
-              </p>
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Your wallet address for deposits:
+                </p>
+                <div className="flex items-center gap-2">
+                  <Input 
+                    value={wallet.wallet_address} 
+                    readOnly 
+                    className="font-mono text-xs"
+                  />
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => copyToClipboard(wallet.wallet_address)}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Send USDT (TRC20) to this address or simulate a deposit below.
+                </p>
+              </div>
               <Button 
                 onClick={handleDeposit} 
                 disabled={isCreatingTransaction || !depositAmount}
@@ -214,17 +232,17 @@ const WalletManager = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Withdraw */}
+        {/* Withdraw/Send */}
         <Dialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>
           <DialogTrigger asChild>
             <Button className="w-full" variant="outline">
               <Send className="h-4 w-4 mr-2" />
-              Withdraw
+              Send
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Withdraw USDT</DialogTitle>
+              <DialogTitle>Send USDT</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -247,15 +265,16 @@ const WalletManager = () => {
                   step="0.01"
                 />
               </div>
-              <p className="text-sm text-muted-foreground">
-                Network fee: ~1 USDT (TRC20)
-              </p>
+              <div className="text-sm text-muted-foreground">
+                <p>Available balance: {Number(wallet.balance || 0).toFixed(8)} USDT</p>
+                <p>Network fee: ~1 USDT (TRC20)</p>
+              </div>
               <Button 
                 onClick={handleWithdraw} 
                 disabled={isCreatingTransaction || !withdrawAmount || !withdrawAddress}
                 className="w-full"
               >
-                {isCreatingTransaction ? 'Processing...' : 'Withdraw'}
+                {isCreatingTransaction ? 'Processing...' : 'Send'}
               </Button>
             </div>
           </DialogContent>

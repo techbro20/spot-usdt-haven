@@ -8,10 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { CreditCard, Smartphone, Building2 } from "lucide-react";
 
 const Buy = () => {
   const [amount, setAmount] = useState("");
   const [receiveAmount, setReceiveAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
   
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -21,6 +23,30 @@ const Buy = () => {
       setReceiveAmount(value ? value : "");
     }
   };
+
+  const PaymentMethodCard = ({ method, icon: Icon, title, description, isSelected, onClick }: {
+    method: string;
+    icon: any;
+    title: string;
+    description: string;
+    isSelected: boolean;
+    onClick: () => void;
+  }) => (
+    <Card 
+      className={`cursor-pointer transition-all ${isSelected ? 'ring-2 ring-primary' : 'hover:border-primary/50'}`}
+      onClick={onClick}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-center space-x-3">
+          <Icon className="h-6 w-6" />
+          <div>
+            <div className="font-medium">{title}</div>
+            <div className="text-sm text-muted-foreground">{description}</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -42,7 +68,7 @@ const Buy = () => {
                 </TabsList>
                 
                 <TabsContent value="buy">
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="space-y-2">
                       <Label>Fiat Currency</Label>
                       <Select defaultValue="usd">
@@ -53,6 +79,7 @@ const Buy = () => {
                           <SelectItem value="usd">USD - US Dollar</SelectItem>
                           <SelectItem value="eur">EUR - Euro</SelectItem>
                           <SelectItem value="gbp">GBP - British Pound</SelectItem>
+                          <SelectItem value="kes">KES - Kenyan Shilling</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -81,26 +108,47 @@ const Buy = () => {
                       />
                     </div>
                     
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <Label>Payment Method</Label>
-                      <Select defaultValue="bank">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select payment method" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="bank">Bank Transfer</SelectItem>
-                          <SelectItem value="card">Credit/Debit Card</SelectItem>
-                          <SelectItem value="paypal">PayPal</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="grid grid-cols-1 gap-3">
+                        <PaymentMethodCard
+                          method="mpesa"
+                          icon={Smartphone}
+                          title="M-Pesa"
+                          description="Pay with M-Pesa mobile money"
+                          isSelected={paymentMethod === "mpesa"}
+                          onClick={() => setPaymentMethod("mpesa")}
+                        />
+                        <PaymentMethodCard
+                          method="card"
+                          icon={CreditCard}
+                          title="Credit/Debit Card"
+                          description="Pay with Visa, Mastercard, or other cards"
+                          isSelected={paymentMethod === "card"}
+                          onClick={() => setPaymentMethod("card")}
+                        />
+                        <PaymentMethodCard
+                          method="bank"
+                          icon={Building2}
+                          title="Bank Transfer"
+                          description="Direct bank transfer"
+                          isSelected={paymentMethod === "bank"}
+                          onClick={() => setPaymentMethod("bank")}
+                        />
+                      </div>
                     </div>
                     
-                    <Button className="w-full mt-4">Continue to Payment</Button>
+                    <Button 
+                      className="w-full mt-6" 
+                      disabled={!paymentMethod || !amount}
+                    >
+                      Continue to Payment
+                    </Button>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="sell">
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="space-y-2">
                       <Label>USDT Amount</Label>
                       <Input 
@@ -124,6 +172,7 @@ const Buy = () => {
                           <SelectItem value="usd">USD - US Dollar</SelectItem>
                           <SelectItem value="eur">EUR - Euro</SelectItem>
                           <SelectItem value="gbp">GBP - British Pound</SelectItem>
+                          <SelectItem value="kes">KES - Kenyan Shilling</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -139,20 +188,34 @@ const Buy = () => {
                       />
                     </div>
                     
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <Label>Payout Method</Label>
-                      <Select defaultValue="bank">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select payout method" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="bank">Bank Transfer</SelectItem>
-                          <SelectItem value="paypal">PayPal</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="grid grid-cols-1 gap-3">
+                        <PaymentMethodCard
+                          method="mpesa"
+                          icon={Smartphone}
+                          title="M-Pesa"
+                          description="Receive via M-Pesa mobile money"
+                          isSelected={paymentMethod === "mpesa"}
+                          onClick={() => setPaymentMethod("mpesa")}
+                        />
+                        <PaymentMethodCard
+                          method="bank"
+                          icon={Building2}
+                          title="Bank Transfer"
+                          description="Direct bank transfer"
+                          isSelected={paymentMethod === "bank"}
+                          onClick={() => setPaymentMethod("bank")}
+                        />
+                      </div>
                     </div>
                     
-                    <Button className="w-full mt-4">Continue to Payout</Button>
+                    <Button 
+                      className="w-full mt-6"
+                      disabled={!paymentMethod || !amount}
+                    >
+                      Continue to Payout
+                    </Button>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -178,6 +241,10 @@ const Buy = () => {
                     <span className="text-muted-foreground">1 USDT =</span>
                     <span>£0.79 GBP</span>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">1 USDT =</span>
+                    <span>132.50 KES</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -195,6 +262,10 @@ const Buy = () => {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Sell Fee</span>
                     <span>1.5%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">M-Pesa</span>
+                    <span>0.5%</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Bank Transfer</span>
