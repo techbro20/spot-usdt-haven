@@ -48,6 +48,134 @@ export type Database = {
         }
         Relationships: []
       }
+      spot_to_wallet_transfers: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          status: string
+          transfer_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          status?: string
+          transfer_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          status?: string
+          transfer_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          confirmations: number | null
+          created_at: string
+          currency: string
+          from_address: string | null
+          id: string
+          network: string
+          network_fee: number | null
+          required_confirmations: number | null
+          status: string
+          to_address: string | null
+          transaction_hash: string | null
+          transaction_type: string
+          updated_at: string
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          confirmations?: number | null
+          created_at?: string
+          currency?: string
+          from_address?: string | null
+          id?: string
+          network?: string
+          network_fee?: number | null
+          required_confirmations?: number | null
+          status?: string
+          to_address?: string | null
+          transaction_hash?: string | null
+          transaction_type: string
+          updated_at?: string
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          confirmations?: number | null
+          created_at?: string
+          currency?: string
+          from_address?: string | null
+          id?: string
+          network?: string
+          network_fee?: number | null
+          required_confirmations?: number | null
+          status?: string
+          to_address?: string | null
+          transaction_hash?: string | null
+          transaction_type?: string
+          updated_at?: string
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          network: string
+          private_key_encrypted: string
+          updated_at: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          network?: string
+          private_key_encrypted: string
+          updated_at?: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          network?: string
+          private_key_encrypted?: string
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

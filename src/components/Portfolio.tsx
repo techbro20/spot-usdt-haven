@@ -1,8 +1,8 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
+import WalletManager from './WalletManager';
 
 const assets = [
   { name: 'Bitcoin', symbol: 'BTC', balance: '0.0345', value: '2,073.45', allocation: 45 },
@@ -169,7 +169,7 @@ const Portfolio = () => {
               </TabsContent>
               
               <TabsContent value="wallet" className="mt-0">
-                <CryptoWallet />
+                <WalletManager />
               </TabsContent>
             </div>
           </Tabs>
