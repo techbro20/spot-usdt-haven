@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface LoginModalProps {
   open: boolean;
@@ -28,7 +29,8 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
+  const { toast } = useToast();
   
   const validateEmail = (email: string): boolean => {
     // Very basic email validation - just check for @ and .
@@ -111,10 +113,36 @@ const LoginModal = ({ open, onOpenChange, defaultTab = "login" }: LoginModalProp
     setIsSubmitting(true);
     
     try {
-      await signUp(trimmedEmail, password);
-      console.log("Signup successful!");
-      onOpenChange(false);
+      // Import supabase directly for registration since we don't want to use the auth context's signUp
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: trimmedEmail,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin,
+        }
+      });
+      
+      if (error) {
+        console.error("Sign up error:", error);
+        throw error;
+      }
+      
+      console.log("Signup successful!", data);
+      
+      // Show success message
+      toast({
+        title: "Account created successfully!",
+        description: "Please sign in with your new credentials.",
+      });
+      
+      // Reset form and switch to login tab
       resetForm();
+      setActiveTab("login");
+      
+      console.log("=== REGISTRATION DEBUG END ===");
+      
     } catch (err: any) {
       console.error("=== REGISTRATION ERROR DETAILS ===");
       console.error("Full error object:", err);
