@@ -30,6 +30,9 @@ const WalletManager = () => {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawAddress, setWithdrawAddress] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
+  const [depositDialogOpen, setDepositDialogOpen] = useState(false);
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -47,6 +50,7 @@ const WalletManager = () => {
       amount: parseFloat(depositAmount)
     });
     setDepositAmount('');
+    setDepositDialogOpen(false);
   };
 
   const handleWithdraw = () => {
@@ -59,6 +63,7 @@ const WalletManager = () => {
     });
     setWithdrawAmount('');
     setWithdrawAddress('');
+    setWithdrawDialogOpen(false);
   };
 
   const handleTransferFromSpot = () => {
@@ -66,6 +71,7 @@ const WalletManager = () => {
     
     transferFromSpot({ amount: parseFloat(transferAmount) });
     setTransferAmount('');
+    setTransferDialogOpen(false);
   };
 
   const getStatusColor = (status: string) => {
@@ -171,7 +177,7 @@ const WalletManager = () => {
       {/* Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Deposit */}
-        <Dialog>
+        <Dialog open={depositDialogOpen} onOpenChange={setDepositDialogOpen}>
           <DialogTrigger asChild>
             <Button className="w-full" variant="outline">
               <Download className="h-4 w-4 mr-2" />
@@ -209,7 +215,7 @@ const WalletManager = () => {
         </Dialog>
 
         {/* Withdraw */}
-        <Dialog>
+        <Dialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>
           <DialogTrigger asChild>
             <Button className="w-full" variant="outline">
               <Send className="h-4 w-4 mr-2" />
@@ -256,7 +262,7 @@ const WalletManager = () => {
         </Dialog>
 
         {/* Transfer from Spot */}
-        <Dialog>
+        <Dialog open={transferDialogOpen} onOpenChange={setTransferDialogOpen}>
           <DialogTrigger asChild>
             <Button className="w-full" variant="outline">
               <ArrowRightLeft className="h-4 w-4 mr-2" />
